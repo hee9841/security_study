@@ -38,7 +38,18 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             );
 
+
+
+        //세션은 서버의 메모리에 유저 정보를 젖아해 동일한 브라우저에 오는 요청을 기억할 수 있음
+        //따라서 로그인을 했다면 매번 요청마다 인증 과정 없이 서션에서 기억하고 있기 때문에 특정한 작업을 진행할 수 있음
+        // 서버에 저장되는 세션은 브라우저로 발급해준 JSESSION이라는 쿠키를 통해 특정할 수 있음
+        //이 떄 세션을 STATELESS로 관리할 경우 서버측 메모리에 저장하지 않기 때문에 동일한 브라우저에서 요청하더라도
+        //매번 새로운 사용자로 특정하게 됨
+
         //세션을 stateless 상태로 설정
+        //요청이 서버에 도착한 뒤 부터 나가기 까지만 SecurityContextHolder가 관리하는 SecurityContext에
+        // Authentication 객체로 들어감
+        // 엄밀히 정의하면 세션은 아니지만, 세션 비슷한 느낌??
         http.sessionManagement((session) -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
