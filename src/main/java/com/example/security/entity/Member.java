@@ -1,5 +1,6 @@
 package com.example.security.entity;
 
+import com.example.security.dto.JoinDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

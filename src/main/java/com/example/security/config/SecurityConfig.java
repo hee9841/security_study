@@ -1,17 +1,25 @@
 package com.example.security.config;
 
+import com.example.security.jwt.LoginFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final AuthenticationConfiguration authenticationConfiguration;
 
     //정보 저장, 검증 할때 해시로 암호화 시켜서 함
     @Bean
@@ -38,6 +46,12 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             );
 
+        //필터 추가 LoginFilter()는 인자를 받음
+        // (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함)
+        // 따라서 등록 필요
+        http
+            .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
+
 
 
         //세션은 서버의 메모리에 유저 정보를 젖아해 동일한 브라우저에 오는 요청을 기억할 수 있음
@@ -56,4 +70,10 @@ public class SecurityConfig {
         return http.build();
     }
 
+
+    //SecurityConfig : AuthenticationMananger Bean 등록과 LoginFilter 인수 전달
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 }
