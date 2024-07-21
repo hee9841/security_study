@@ -1,5 +1,6 @@
 package com.example.security.config;
 
+import com.example.security.jwt.JWTUtil;
 import com.example.security.jwt.LoginFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
-
+    private final JWTUtil jwtUtil;
     //정보 저장, 검증 할때 해시로 암호화 시켜서 함
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -50,7 +51,7 @@ public class SecurityConfig {
         // (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함)
         // 따라서 등록 필요
         http
-            .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
+            .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
 
 
