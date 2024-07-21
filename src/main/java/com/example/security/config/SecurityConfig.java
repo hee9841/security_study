@@ -1,5 +1,6 @@
 package com.example.security.config;
 
+import com.example.security.jwt.JWTFilter;
 import com.example.security.jwt.JWTUtil;
 import com.example.security.jwt.LoginFilter;
 import lombok.RequiredArgsConstructor;
@@ -47,12 +48,14 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             );
 
+        //JWTFilter 등록
+        http.addFilterAt(new JWTFilter(jwtUtil), LoginFilter.class);
+
         //필터 추가 LoginFilter()는 인자를 받음
         // (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함)
         // 따라서 등록 필요
         http
             .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
 
 
         //세션은 서버의 메모리에 유저 정보를 젖아해 동일한 브라우저에 오는 요청을 기억할 수 있음
@@ -77,4 +80,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
+
 }
