@@ -6,12 +6,15 @@ import com.example.security.jwt.LoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,39 +37,30 @@ public class SecurityConfig {
     }
 
     @Bean
+    public WebSecurityCustomizer configure() {
+        //static 하위 경로에 있는 리소스, h2 데이터를 확인하는 h2 console 하위 url을 대상으로 ignore
+        return (web) -> web.ignoring()
+            .requestMatchers("/test/**");
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         //csrf disable
         //세션 방식에서는 세션이 항상 고정되어서 csrf 공격을 필수적으로 방어해줘어야함
         //jwt방식은 세션을 stateless 상태로 관리해서 csrf 공격를 방어하지 않아도 되어서 disable 상태로 둘꺼임
         //from 로그인, http basic 인증 방식 disable -> jwt 방식으로 사용할거라서
         http
-            .cors((corsCustomizer -> corsCustomizer
-                .configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration configuration = new CorsConfiguration();
-
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-                        return configuration;
-                    }
-                })))
+            .cors(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable);
 
         //경로별 인가 작업
         http
             .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/login", "/", "/join").permitAll()
+                .requestMatchers("/login","/", "/join").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated()
             );
-
         //JWTFilter 등록
         http.addFilterAt(new JWTFilter(jwtUtil), LoginFilter.class);
 

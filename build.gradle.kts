@@ -29,6 +29,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     compileOnly("org.projectlombok:lombok")
     implementation("org.postgresql:postgresql:42.7.3")
+    implementation("org.mariadb.jdbc:mariadb-java-client")
+//    implementation("com.h2database:h2")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -37,6 +39,11 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+
+    implementation("org.apache.commons:commons-lang3:3.0")
+
+    //Redis
+//    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 
     //많이 구현하는 버전 0.11.5 -> 추후 다룰 예정, 최신버전, 0.11.5 버전 다 중ㅇ요
 //    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
@@ -47,3 +54,5 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+
